@@ -112,16 +112,7 @@ variable "private_subnets_cidr" {
   description = "CIDR block for Private Subnet"
 }
 
-variable "vpc_id" {
+variable "vpc_cidr" {
   description = "Specify the vpc to use for the kafka brokers."
   type        = string
 }
-
-# variable "availability_zones" {
-#   type        = list
-#   description = "AZ in which all the resources will be deployed"
-# }
-
-# variable "subnet_count" {
-#
-# }
