@@ -15,7 +15,7 @@ terraform {
 
 resource "aws_security_group" "this" {
   name_prefix = "${var.cluster_name}-"
-  vpc_id      = var.vpc_id
+  vpc_id      = aws_vpc.main.id
 }
 
 resource "aws_security_group_rule" "msk-plain" {
@@ -169,7 +169,7 @@ resource "aws_msk_cluster" "this" {
 }
 
 resource "aws_subnet" "private_subnet" {
-  vpc_id                  = var.vpc_id
+  vpc_id                  = aws_vpc.main.id
   count                   = length(var.private_subnets_cidr)
   cidr_block              = element(var.private_subnets_cidr, count.index)
   availability_zone       = data.aws_availability_zones.available.names[count.index]
@@ -177,3 +177,11 @@ resource "aws_subnet" "private_subnet" {
 
   tags = var.tags
 }
+
+resource "aws_vpc" "main" {                # Creating VPC here
+   cidr_block       = var.vpc_cidr     # Defining the CIDR block use 10.0.0.0/24 for demo
+   instance_tenancy = "default"
+   enable_dns_support   = true
+   enable_dns_hostnames = true
+   tags = var.tags
+ }
