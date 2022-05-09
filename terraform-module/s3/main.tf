@@ -7,8 +7,9 @@ resource "aws_s3_bucket" "this" {
     content {
       allowed_headers = cors_rule.value.allowed_headers
       allowed_methods = cors_rule.value.allowed_methods
+      # allowed_origins = cors_rule.value.allowed_origins
       allowed_origins = cors_rule.value.allowed_origins
-      
+
     }
   }
    dynamic "lifecycle_rule" {
@@ -43,5 +44,8 @@ resource "aws_s3_bucket" "this" {
   }
 
 }
+tags = {
+    Environment = var.environment
+  }
 
 }

@@ -7,6 +7,9 @@ variable "acl_type" {
   description = "Specify the Acl type for bucket."
   type        = string
 }
+variable "environment" {
+  default = ""
+}
 
 # variable "bucket_region" {
 #   default = "string"
@@ -16,7 +19,7 @@ variable "cors_rule_inputs" {
     allowed_headers = list(string)
     allowed_methods = list(string)
     allowed_origins = list(string)
-    
+
   }))
   default = null
 }

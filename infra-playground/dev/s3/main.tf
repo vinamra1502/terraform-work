@@ -1,12 +1,17 @@
+variable "cors_environment" {
+  default = "dev"
+}
+
 module "s3_bucket" {
   source  = "../../../terraform-module/s3/"
   s3_bucket_name    = "lessen-photo-bucket"
+  environment       = "dev"
   acl_type          = "private"
   cors_rule_inputs         = [
     {
     allowed_headers = ["*"]
     allowed_methods = ["PUT", "GET"]
-    allowed_origins = ["https://.lessen.com"]
+    allowed_origins = [var.cors_environment != "dev" ? "https://*.lessen.com" : "http://localhost"]
   },
 ]
 lifecycle_rule_inputs = [{
