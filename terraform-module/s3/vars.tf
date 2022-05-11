@@ -8,12 +8,25 @@ variable "acl_type" {
   type        = string
 }
 variable "environment" {
-  default = "dev"
+  default = ""
 }
 
-variable "lifecycle_enable" {
+variable "enable_lifecycle" {
   default = "false"
 }
-variable "cors_enable" {
+variable "enable_cors" {
   default = "false"
+}
+variable "lifecycle_expiration_days" {
+  default = "90"
+}
+
+variable "cors_rule_inputs" {
+  type = list(object({
+    allowed_headers = list(string)
+    allowed_methods = list(string)
+    allowed_origins = list(string)
+
+  }))
+  default = null
 }

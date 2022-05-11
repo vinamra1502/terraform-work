@@ -8,15 +8,15 @@ resource "aws_s3_bucket" "this" {
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "this" {
-  bucket = aws_s3_bucket.this.id
-  depends_on = [aws_s3_bucket.this]
-  count            = "${var.lifecycle_enable == "true" ? 1 : 0}"
+  bucket           = aws_s3_bucket.this.id
+  depends_on       = [aws_s3_bucket.this]
+  count            = "${var.enable_lifecycle == "true" ? 1 : 0}"
 
   rule {
     id = "log"
 
     expiration {
-      days = 90
+      days = var.lifecycle_expiration_days
     }
 
     status = "Enabled"
@@ -26,14 +26,18 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
 resource "aws_s3_bucket_cors_configuration" "this" {
   bucket = aws_s3_bucket.this.id
   depends_on = [aws_s3_bucket.this]
-  count            = "${var.cors_enable == "true" ? 1 : 0}"
-  cors_rule {
-    allowed_headers = ["*"]
-    allowed_methods = ["PUT", "GET"]
-    allowed_origins = [var.environment != "dev" ? "https://*.lessen.com" : "http://localhost"]
+  count            = "${var.enable_cors == "true" ? 1 : 0}"
+  dynamic "cors_rule" {
+    for_each = var.enable_cors == false ? [] : var.cors_rule_inputs
 
+    content {
+      allowed_headers = cors_rule.value.allowed_headers
+      allowed_methods = cors_rule.value.allowed_methods
+      allowed_origins = cors_rule.value.allowed_origins
+
+    }
   }
-}
+}  
 
 resource "aws_s3_bucket_acl" "this" {
   bucket = aws_s3_bucket.this.id
