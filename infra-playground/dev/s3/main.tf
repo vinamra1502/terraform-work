@@ -11,7 +11,7 @@ module "s3_bucket" {
     {
     allowed_headers = ["*"]
     allowed_methods = ["PUT", "GET"]
-    allowed_origins = [var.cors_environment != "dev" ? "https://*.innovaccer.com" : "http://localhost"]
+    allowed_origins = [var.cors_environment != "dev" ? "https://*.lessen.com" : "http://localhost"]
   },
 ]
 }
