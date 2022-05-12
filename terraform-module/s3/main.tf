@@ -37,10 +37,20 @@ resource "aws_s3_bucket_cors_configuration" "this" {
 
     }
   }
-}  
+}
 
 resource "aws_s3_bucket_acl" "this" {
   bucket = aws_s3_bucket.this.id
   depends_on = [aws_s3_bucket.this]
   acl    = var.acl_type
+}
+
+resource "aws_s3_bucket_public_access_block" "this" {
+  bucket = aws_s3_bucket.this.id
+  depends_on = [aws_s3_bucket.this]
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
