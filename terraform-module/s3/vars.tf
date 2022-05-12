@@ -11,37 +11,21 @@ variable "environment" {
   default = ""
 }
 
-# variable "bucket_region" {
-#   default = "string"
-# }
+variable "enable_lifecycle" {
+  default = "false"
+}
+variable "enable_cors" {
+  default = "false"
+}
+variable "lifecycle_expiration_days" {
+  default = "90"
+}
+
 variable "cors_rule_inputs" {
   type = list(object({
     allowed_headers = list(string)
     allowed_methods = list(string)
     allowed_origins = list(string)
-
-  }))
-  default = null
-}
-
-variable "lifecycle_rule_inputs" {
-  type = list(object({
-    id                                     = string
-    prefix                                 = string
-    tags                                   = map(string)
-    enabled                                = string
-    abort_incomplete_multipart_upload_days = string
-    expiration_inputs = list(object({
-      date                         = string
-      days                         = number
-      expired_object_delete_marker = string
-    }))
-    transition_inputs = list(object({
-      date          = string
-      days          = number
-      storage_class = string
-    }))
-
 
   }))
   default = null
