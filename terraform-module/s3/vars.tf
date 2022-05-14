@@ -17,6 +17,12 @@ variable "enable_lifecycle" {
 variable "enable_cors" {
   default = "false"
 }
+variable "enable_versioning" {
+  default = "false"
+}
+variable "enable_encryption" {
+  default = "false"
+}
 variable "lifecycle_expiration_days" {
   default = "90"
 }
