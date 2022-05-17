@@ -10,6 +10,19 @@ variable "acl_type" {
 variable "environment" {
   default = ""
 }
+variable "allowed_headers" {
+  type    = list(string)
+  default = []
+}
+variable "allowed_methods" {
+  type    = list(string)
+  default = []
+}
+
+variable "allowed_origins" {
+   type    = list(string)
+   default = ["https://*lessen.com", "http://localhost*"]
+}
 
 variable "enable_lifecycle" {
   default = "false"
