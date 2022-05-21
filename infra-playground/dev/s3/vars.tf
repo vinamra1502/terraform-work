@@ -1,5 +1,6 @@
-variable "s3_bucket_name" {}
-variable "s3_bucket_name_netsuite" {}
+variable "s3_bucket_name" {
+  type    = list(string)
+}
 variable "environment" {}
 variable "acl_type" {}
 variable "enable_versioning" {}

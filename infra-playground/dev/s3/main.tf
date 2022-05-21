@@ -1,6 +1,6 @@
 module "s3_bucket_lessen" {
   source  = "../../../terraform-module/s3/"
-  s3_bucket_name               = var.s3_bucket_name
+  s3_bucket_name               = element(var.s3_bucket_name,0)
   environment                  = var.environment
   acl_type                     = var.acl_type
   enable_versioning            = var.enable_versioning
@@ -11,7 +11,7 @@ module "s3_bucket_lessen" {
 }
 module "s3_bucket_netsuite" {
   source  = "../../../terraform-module/s3/"
-  s3_bucket_name               = var.s3_bucket_name_netsuite
+  s3_bucket_name               = element(var.s3_bucket_name,1)
   environment                  = var.environment
   acl_type                     = var.acl_type
   enable_versioning            = var.enable_versioning
