@@ -1,7 +1,0 @@
-s3_bucket_name = "netsuite-backup-bucket"
-environment    = "dev"
-acl_type       = "private"
-enable_versioning  = "true"
-enable_encryption = "true"
-enable_lifecycle  = "true"
-lifecycle_expiration_days ="90"
