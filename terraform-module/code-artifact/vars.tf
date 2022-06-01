@@ -4,3 +4,6 @@ variable "domain_name" {
 variable "environment" {
   default = ""
 }
+variable "repo_name" {
+  default = ""
+}
