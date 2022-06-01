@@ -33,6 +33,7 @@ EOF
 
 resource "aws_codeartifact_repository" "this" {
   repository = var.repo_name
+  depends_on       = [aws_codeartifact_domain.this]
   description = "This is our private Lessen repo. It has an external connection to public npm.js"
   domain          = aws_codeartifact_domain.this.domain
 
