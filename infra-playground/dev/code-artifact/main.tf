@@ -1,7 +1,7 @@
 module "codeartifact_lessen" {
   source  = "../../../terraform-module/code-artifact/"
-  domain_name = "codeartifact-domain"
-  environment = "prod"
-  repo_name   = "codeartifact-repo"
+  domain_name = var.domain_name
+  environment = var.environment
+  repo_name   = var.repo_name
 
 }
