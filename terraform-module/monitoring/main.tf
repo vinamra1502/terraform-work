@@ -70,3 +70,58 @@ resource "aws_iam_role_policy" "chatbot_policy" {
     ]
   })
 }
+resource "aws_iam_role" "alert_lambda_role" {
+  name = "aws-pipeline-alerts-lambda-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = "sid0"
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+      },
+    ]
+  })
+}
+resource "aws_iam_role_policy" "lambda_policy" {
+  name = "lambda"
+  role = aws_iam_role.alert_lambda_role.id
+
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    "Statement": [
+      {
+        "Action": [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ],
+        "Effect": "Allow",
+        "Resource": "*"
+      },
+      {
+        "Action": "ssm:GetParameter",
+        "Effect": "Allow",
+        "Resource": "*"
+      },
+      {
+        "Action": "kms:Decrypt",
+        "Effect": "Allow",
+        "Resource": {
+          "Fn::ImportValue": "Crypto:ExportsOutputFnGetAttopusonecmk5F3B6B70Arn765E2BE7"
+        }
+      },
+      {
+        "Action": "codepipeline:GetPipelineExecution",
+        "Effect": "Allow",
+        "Resource": "arn:aws:codepipeline:us-east-1:823208167079:*"
+      }
+    ]
+      },
+
+  )
+}
