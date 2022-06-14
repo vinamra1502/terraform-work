@@ -34,3 +34,39 @@ data "aws_iam_policy_document" "sns_topic_policy" {
     ]
   }
 }
+resource "aws_iam_role" "chatbot_role" {
+  name = "chatbot-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = "sid0"
+        Principal = {
+          Service = "chatbot.amazonaws.com"
+        }
+      },
+    ]
+  })
+}
+resource "aws_iam_role_policy" "chatbot_policy" {
+  name = "chatbot"
+  role = aws_iam_role.chatbot_role.id
+
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action =  [
+          "cloudwatch:Describe*",
+          "cloudwatch:Get*",
+          "cloudwatch:List*"
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      },
+    ]
+  })
+}
