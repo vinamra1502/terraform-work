@@ -68,6 +68,7 @@ resource "aws_iam_role_policy" "chatbot_policy" {
         Resource = "*"
       },
     ]
+
   })
 }
 resource "aws_iam_role" "alert_lambda_role" {
@@ -90,22 +91,57 @@ resource "aws_iam_role" "alert_lambda_role" {
 resource "aws_iam_role_policy" "lambda_policy" {
   name = "lambda"
   role = aws_iam_role.alert_lambda_role.id
-
   policy = <<EOF
 {
-   "Version": "2012-10-17",
-   "Statement": [
-     {
-       "Action": [
-         "logs:CreateLogGroup",
-         "logs:CreateLogStream",
-         "logs:PutLogEvents"
-       ],
-       "Resource": "arn:aws:logs:*:*:*",
-       "Effect": "Allow"
-     }
-   ]
-}
+      "Version": "2012-10-17",
+      "Statement": [
+          {
+              "Sid": "Sid0",
+              "Effect": "Allow",
+
+              "Action": [
+                   "kms:Decrypt"
+              ],
+              "Resource": "*"
+          },
+          {
+              "Sid": "Sid1",
+              "Effect": "Allow",
+
+              "Action": [
+
+                   "codepipeline:GetPipelineExecution"
+
+              ],
+              "Resource": "*"
+          },
+          {
+              "Sid": "Sid2",
+              "Effect": "Allow",
+
+              "Action": [
+
+                   "ssm:GetParameter"
+
+              ],
+              "Resource": "*"
+          },
+          {
+              "Sid": "Sid3",
+              "Effect": "Allow",
+
+              "Action": [
+
+              "logs:CreateLogGroup",
+              "logs:CreateLogStream",
+              "logs:PutLogEvents"
+
+              ],
+              "Resource": "*"
+          }
+
+      ]
+  }
 EOF
 }
 resource "aws_lambda_function" "lambda" {
