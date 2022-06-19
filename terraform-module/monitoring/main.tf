@@ -72,6 +72,7 @@ resource "aws_iam_role_policy" "chatbot_policy" {
 }
 resource "aws_iam_role" "alert_lambda_role" {
   name = "aws-pipeline-alerts-lambda-role"
+  description = "role for aws-pipeline-alerts lambda"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -90,38 +91,65 @@ resource "aws_iam_role_policy" "lambda_policy" {
   name = "lambda"
   role = aws_iam_role.alert_lambda_role.id
 
+  policy = <<EOF
+{
+   "Version": "2012-10-17",
+   "Statement": [
+     {
+       "Action": [
+         "logs:CreateLogGroup",
+         "logs:CreateLogStream",
+         "logs:PutLogEvents"
+       ],
+       "Resource": "arn:aws:logs:*:*:*",
+       "Effect": "Allow"
+     }
+   ]
+}
+EOF
+}
+resource "aws_lambda_function" "lambda" {
+  function_name    = "aws-pipeline-alerts-lambda"
+  depends_on       = [aws_iam_role.alert_lambda_role]
+  filename         = "${path.module}/code.zip"
+  handler          = "index.handler"
+  role             =  aws_iam_role.alert_lambda_role.arn
+  runtime          = "nodejs12.x"
+  memory_size      = 512
+  timeout          = 60
 
-  policy = jsonencode({
-    Version = "2012-10-17"
-    "Statement": [
-      {
-        "Action": [
-          "logs:CreateLogGroup",
-          "logs:CreateLogStream",
-          "logs:PutLogEvents"
-        ],
-        "Effect": "Allow",
-        "Resource": "*"
-      },
-      {
-        "Action": "ssm:GetParameter",
-        "Effect": "Allow",
-        "Resource": "*"
-      },
-      {
-        "Action": "kms:Decrypt",
-        "Effect": "Allow",
-        "Resource": {
-          "Fn::ImportValue": "Crypto:ExportsOutputFnGetAttopusonecmk5F3B6B70Arn765E2BE7"
-        }
-      },
-      {
-        "Action": "codepipeline:GetPipelineExecution",
-        "Effect": "Allow",
-        "Resource": "arn:aws:codepipeline:us-east-1:823208167079:*"
+  environment {
+    variables = {
+      ENV = "bar"
+      AWS_NODEJS_CONNECTION_REUSE_ENABLED = 1
+    }
+  }
+}
+resource "aws_cloudwatch_event_rule" "this" {
+  name        = "aws-pipeline-alerts-event-trigger"
+  description = "Triggers aws-pipeline-alerts Lambda when CodePipeline reports Action Execution failures."
+  is_enabled  = "true"
+
+
+  event_pattern = <<PATTERN
+{
+    "source": ["aws.codepipeline"],
+    "detail-type": ["CodePipeline Action Execution State Change"],
+    "detail": {
+      "state": ["FAILED"]
       }
-    ]
-      },
-
-  )
+}
+PATTERN
+}
+resource "aws_cloudwatch_event_target" "this" {
+  rule = aws_cloudwatch_event_rule.this.name
+  target_id = "Target0"
+  arn = aws_lambda_function.lambda.arn
+}
+resource "aws_lambda_permission" "this" {
+    statement_id = "AllowExecutionFromCloudWatchEventRule"
+    action = "lambda:InvokeFunction"
+    function_name = aws_lambda_function.lambda.function_name
+    principal = "events.amazonaws.com"
+    source_arn = aws_cloudwatch_event_rule.this.arn
 }
