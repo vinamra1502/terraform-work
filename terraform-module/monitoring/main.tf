@@ -147,7 +147,7 @@ EOF
 resource "aws_lambda_function" "lambda" {
   function_name    = "aws-pipeline-alerts-lambda"
   depends_on       = [aws_iam_role.alert_lambda_role]
-  filename         = "${path.module}/code.zip"
+  filename         = "${path.module}/infrastructurefunctionsawspipelinesalerts.zip"
   handler          = "index.handler"
   role             =  aws_iam_role.alert_lambda_role.arn
   runtime          = "nodejs12.x"
@@ -156,7 +156,7 @@ resource "aws_lambda_function" "lambda" {
 
   environment {
     variables = {
-      ENV = "bar"
+      ENV = "dev"
       AWS_NODEJS_CONNECTION_REUSE_ENABLED = 1
     }
   }
@@ -188,4 +188,117 @@ resource "aws_lambda_permission" "this" {
     function_name = aws_lambda_function.lambda.function_name
     principal = "events.amazonaws.com"
     source_arn = aws_cloudwatch_event_rule.this.arn
+}
+resource "aws_iam_role" "missingalert_lambda_role" {
+  name = "missing-audit-log-lambda-role"
+  description = "role for missing-audit-log lambda"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = "sid0"
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+      },
+    ]
+  })
+}
+resource "aws_iam_role_policy" "missinglambda_policy" {
+  name = "missinglambda"
+  role = aws_iam_role.missingalert_lambda_role.id
+  policy = <<EOF
+{
+      "Version": "2012-10-17",
+      "Statement": [
+          {
+              "Sid": "Sid0",
+              "Effect": "Allow",
+
+              "Action": [
+                   "kms:Decrypt"
+              ],
+              "Resource": "*"
+          },
+          {
+              "Sid": "Sid1",
+              "Effect": "Allow",
+
+              "Action": [
+
+                 "ec2:DescribeInstances",
+                 "ec2:CreateNetworkInterface",
+                 "ec2:AttachNetworkInterface",
+                 "ec2:DescribeNetworkInterfaces",
+                 "ec2:DeleteNetworkInterface"
+
+              ],
+              "Resource": "*"
+          },
+          {
+              "Sid": "Sid2",
+              "Effect": "Allow",
+
+              "Action": [
+
+                   "ssm:GetParameter"
+
+              ],
+              "Resource": "*"
+          },
+          {
+              "Sid": "Sid3",
+              "Effect": "Allow",
+
+              "Action": [
+
+              "logs:CreateLogGroup",
+              "logs:CreateLogStream",
+              "logs:PutLogEvents"
+
+              ],
+              "Resource": "*"
+          }
+
+      ]
+  }
+EOF
+}
+resource "aws_security_group" "missinglambdasg" {
+  name        = "missingauditloglambdaSecurityGroup"
+  depends_on       = [aws_iam_role.missingalert_lambda_role]
+  description = "Automatic security group for Lambda Function missingaudit log"
+  vpc_id      =  var.vpc_id
+  egress {
+    description      = "Allow all outbound traffic by default"
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+ }
+}
+resource "aws_lambda_function" "missingauditlambda" {
+  function_name    = "missing-audit-log-lambda"
+  depends_on       = [aws_iam_role.missingalert_lambda_role]
+  filename         = "${path.module}/infrastructurefunctionsawsmissingauditlogalerts.zip"
+  handler          = "index.handler"
+  role             =  aws_iam_role.missingalert_lambda_role.arn
+  runtime          = "nodejs12.x"
+  memory_size      = 512
+  timeout          = 60
+
+  vpc_config {
+    subnet_ids         = var.subnet_ids
+    security_group_ids = [aws_security_group.missinglambdasg.id]
+  }
+
+
+  environment {
+    variables = {
+      ENV = "dev"
+      AWS_NODEJS_CONNECTION_REUSE_ENABLED = 1
+    }
+  }
 }
