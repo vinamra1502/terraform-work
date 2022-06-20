@@ -482,3 +482,18 @@ resource "aws_cloudtrail" "alerts" {
   cloud_watch_logs_role_arn     = aws_iam_role.cloudtrail_role.arn
   cloud_watch_logs_group_arn   = aws_cloudwatch_log_group.alert.arn
 }
+resource "aws_guardduty_detector" "alert" {
+  enable = true
+  finding_publishing_frequency = "FIFTEEN_MINUTES"
+
+  datasources {
+    s3_logs {
+      enable = false
+    }
+    kubernetes {
+      audit_logs {
+        enable = false
+      }
+    }
+  }
+}
