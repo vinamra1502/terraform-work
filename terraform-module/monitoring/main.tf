@@ -402,3 +402,73 @@ resource "aws_s3_bucket_public_access_block" "alert" {
   ignore_public_acls      = true
   restrict_public_buckets = true
 }
+resource "aws_s3_bucket_policy" "alert" {
+  bucket = aws_s3_bucket.alert.id
+  policy = <<POLICY
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AWSCloudTrailAclCheck",
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "cloudtrail.amazonaws.com"
+            },
+            "Action": "s3:GetBucketAcl",
+            "Resource": "${aws_s3_bucket.alert.arn}"
+        },
+        {
+            "Sid": "AWSCloudTrailWrite",
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "cloudtrail.amazonaws.com"
+            },
+            "Action": "s3:PutObject",
+            "Resource": "${aws_s3_bucket.alert.arn}/prefix/AWSLogs/${data.aws_caller_identity.current.account_id}/*",
+            "Condition": {
+                "StringEquals": {
+                    "s3:x-amz-acl": "bucket-owner-full-control"
+                }
+            }
+        }
+    ]
+}
+POLICY
+}
+resource "aws_iam_role" "cloudtrail_role" {
+  name = "cloudtrail-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = "sid0"
+        Principal = {
+          Service = "cloudtrail.amazonaws.com"
+        }
+      },
+    ]
+  })
+}
+resource "aws_iam_role_policy" "cloudtrail_policy" {
+  name = "cloudtrail-policy"
+  role = aws_iam_role.cloudtrail_role.id
+
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action =  [
+          "logs:PutLogEvents",
+          "logs:CreateLogStream"
+
+        ]
+        Effect   = "Allow"
+        Resource = "[aws_cloudwatch_log_group.alert.arn]"
+      },
+    ]
+
+  })
+}
