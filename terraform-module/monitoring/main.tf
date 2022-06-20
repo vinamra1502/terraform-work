@@ -341,6 +341,7 @@ resource "aws_lambda_permission" "missingaudit" {
 resource "aws_config_config_rule" "config_rule" {
   name = "ConfigRule"
   count = length(var.source_identifier)
+  description   = var.source_identifier[count.index]
   source {
     owner             = "AWS"
     source_identifier = var.source_identifier[count.index]
@@ -369,4 +370,35 @@ resource "aws_cloudwatch_event_target" "alert" {
   rule = aws_cloudwatch_event_rule.alert.name
   target_id = "Target0"
   arn = aws_sns_topic.this.arn
+}
+resource "aws_cloudwatch_log_group" "alert" {
+  name = "cloudtrail-logs"
+  retention_in_days  = 180
+}
+resource "aws_s3_bucket" "alert" {
+   bucket = "lessen-dev-cloudtrail-logs"
+}
+resource "aws_s3_bucket_versioning" "alert" {
+  bucket = aws_s3_bucket.alert.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+resource "aws_s3_bucket_server_side_encryption_configuration" "alert" {
+  bucket = aws_s3_bucket.alert.id
+  depends_on = [aws_s3_bucket.alert]
+  rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "AES256"
+      }
+    }
+}
+resource "aws_s3_bucket_public_access_block" "alert" {
+  bucket = aws_s3_bucket.alert.id
+  depends_on = [aws_s3_bucket.alert]
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
