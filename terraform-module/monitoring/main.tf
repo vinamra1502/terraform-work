@@ -338,3 +338,35 @@ resource "aws_lambda_permission" "missingaudit" {
     principal = "events.amazonaws.com"
     source_arn = aws_cloudwatch_event_rule.missingaudit.arn
 }
+resource "aws_config_config_rule" "config_rule" {
+  name = "ConfigRule"
+  count = length(var.source_identifier)
+  source {
+    owner             = "AWS"
+    source_identifier = var.source_identifier[count.index]
+  }
+}
+resource "aws_cloudwatch_event_rule" "alert" {
+  name        = "config-noncompliant-rule"
+  description = "Rule triggers when config rule status changes to noncompliant"
+  is_enabled  = "true"
+
+
+  event_pattern = <<PATTERN
+{
+      "source": ["aws.config"],
+      "detail-type": ["Config Rules Compliance Change"],
+      "detail": {
+        "messageType": ["ComplianceChangeNotification"],
+        "newEvaluationResult": {
+          "complianceType": ["NON_COMPLIANT"]
+          }
+      }
+}
+PATTERN
+}
+resource "aws_cloudwatch_event_target" "alert" {
+  rule = aws_cloudwatch_event_rule.alert.name
+  target_id = "Target0"
+  arn = aws_sns_topic.this.arn
+}
