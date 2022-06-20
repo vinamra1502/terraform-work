@@ -302,3 +302,39 @@ resource "aws_lambda_function" "missingauditlambda" {
     }
   }
 }
+resource "aws_cloudwatch_metric_alarm" "missingaudit" {
+  alarm_name          = "missing-audit-log-lambda"
+  alarm_description   = "missing-audit-log-lambda test"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "Errors"
+  namespace           = "AWS/Lambda"
+  period              = "60"
+  statistic           = "Sum"
+  threshold           = "1"
+  treat_missing_data  = "notBreaching"
+
+  dimensions = {
+    FunctionName = aws_lambda_function.missingauditlambda.function_name
+  }
+
+  alarm_actions     = [aws_sns_topic.this.arn]
+}
+resource "aws_cloudwatch_event_rule" "missingaudit" {
+  name                = "missing-audit-log-lambda-alarm-trigger"
+  description         = "Triggers Missing Audit Log Alarm"
+  is_enabled          = "true"
+  schedule_expression = "cron(30 13 * * ? *)"
+}
+resource "aws_cloudwatch_event_target" "missingaudit" {
+  rule = aws_cloudwatch_event_rule.missingaudit.name
+  target_id = "Target0"
+  arn = aws_lambda_function.missingauditlambda.arn
+}
+resource "aws_lambda_permission" "missingaudit" {
+    statement_id = "AllowExecutionFromCloudWatchEventRule"
+    action = "lambda:InvokeFunction"
+    function_name = aws_lambda_function.missingauditlambda.function_name
+    principal = "events.amazonaws.com"
+    source_arn = aws_cloudwatch_event_rule.missingaudit.arn
+}
