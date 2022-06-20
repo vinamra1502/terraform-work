@@ -472,3 +472,13 @@ resource "aws_iam_role_policy" "cloudtrail_policy" {
 
   })
 }
+resource "aws_cloudtrail" "alerts" {
+  depends_on  = [aws_iam_role.cloudtrail_role]
+  name        = "cloudtrail-global"
+  enable_log_file_validation = "true"
+  is_multi_region_trail    = "true"
+  include_global_service_events = "true"
+  s3_bucket_name  = "aws_s3_bucket.alert.id"
+  cloud_watch_logs_role_arn     = aws_iam_role.cloudtrail_role.arn
+  cloud_watch_logs_group_arn   = aws_cloudwatch_log_group.alert.arn
+}
