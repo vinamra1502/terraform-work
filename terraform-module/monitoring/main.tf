@@ -1,3 +1,32 @@
+resource "aws_subnet" "private_subnet_monitoring" {
+  vpc_id                  = aws_vpc.monitoring.id
+  count                   = length(var.private_subnets_cidr)
+  cidr_block              = element(var.private_subnets_cidr, count.index)
+  availability_zone       = data.aws_availability_zones.available.names[count.index]
+  map_public_ip_on_launch = false
+  tags = {
+   Name = "monitoring-subnet-${count.index}"
+   Environment = var.environment
+
+ }
+
+}
+
+resource "aws_vpc" "monitoring" {                # Creating VPC here
+   cidr_block       = var.vpc_cidr     # Defining the CIDR block use 10.0.0.0/24 for demo
+   instance_tenancy = "default"
+   enable_dns_support   = true
+   enable_dns_hostnames = true
+   tags = {
+    Name = "monitoring-vpc"
+    Environment = var.environment
+
+  }
+ }
+
+
+
+
 resource "aws_sns_topic" "this" {
     name = "aws-${var.environment}-alerts-topic"
     display_name = "aws-${var.environment}-alerts-topic"
@@ -270,7 +299,7 @@ resource "aws_security_group" "missinglambdasg" {
   name        = "missingauditloglambdaSecurityGroup"
   depends_on       = [aws_iam_role.missingalert_lambda_role]
   description = "Automatic security group for Lambda Function missingaudit log"
-  vpc_id      =  var.vpc_id
+  vpc_id      =  aws_vpc.monitoring.id
   egress {
     description      = "Allow all outbound traffic by default"
     from_port        = 0
@@ -290,7 +319,7 @@ resource "aws_lambda_function" "missingauditlambda" {
   timeout          = 60
 
   vpc_config {
-    subnet_ids         = var.subnet_ids
+    subnet_ids         = aws_subnet.private_subnet_monitoring.*.id
     security_group_ids = [aws_security_group.missinglambdasg.id]
   }
 

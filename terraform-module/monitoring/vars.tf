@@ -2,14 +2,22 @@
 variable "environment" {
   default = "dev"
 }
-variable "vpc_id" {
-  default = ""
+# variable "vpc_id" {
+#   default = ""
+# }
+# variable "subnet_ids" {
+#   type    = list(string)
+#   default = []
+# }
+variable "vpc_cidr" {
+  description = "CIDR block of the vpc"
+  default     = "172.20.0.0/16"
 }
-variable "subnet_ids" {
-  type    = list(string)
-  default = []
+variable "private_subnets_cidr" {
+  type        = list
+  description = "CIDR block for Private Subnet"
+  default     = ["172.20.16.0/20", "172.20.32.0/20", "172.20.48.0/20"]
 }
-
 
 variable "source_identifier" {
   type        = list(string)
