@@ -12,6 +12,7 @@ variable "encryption_in_transit_client_broker" {}
 variable "Owner" {}
 variable "Environment" {}
 variable "Component" {}
+variable "cluster_vertical" {}
 variable "server_properties" {
   type    = map(string)
 }
