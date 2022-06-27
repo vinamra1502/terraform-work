@@ -3,7 +3,9 @@ resource "aws_s3_bucket" "this" {
 
 
   tags = {
-      Environment = var.environment
+      Environment          = var.environment
+      Created_by_terraform = true
+      Team                 = var.cluster_vertical
     }
 }
 
