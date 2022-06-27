@@ -103,6 +103,7 @@ resource "aws_msk_cluster" "this" {
   kafka_version          = var.kafka_version
   number_of_broker_nodes = var.number_of_nodes
   enhanced_monitoring    = var.enhanced_monitoring
+  
 
   broker_node_group_info {
     client_subnets   = aws_subnet.private_subnet.*.id

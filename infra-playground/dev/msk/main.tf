@@ -10,6 +10,8 @@ module "msk-cluster" {
   private_subnets_cidr  = var.private_subnets_cidr
 
 
+
+
   enhanced_monitoring = var.enhanced_monitoring
 
   # s3_logs_bucket = "testingsbucket"
@@ -25,5 +27,8 @@ module "msk-cluster" {
     Owner       = var.Owner
     Environment = var.Environment
     Component   = var.Component
+    Team        = var.cluster_vertical
+    Created_by_terraform = true
+
   }
 }

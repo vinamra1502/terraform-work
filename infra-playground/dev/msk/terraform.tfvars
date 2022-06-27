@@ -12,6 +12,7 @@ encryption_in_transit_client_broker = "TLS"
 Owner = "Infra"
 Environment = "Dev"
 Component = "MSK"
+cluster_vertical  = "platform"
 server_properties = {
   "auto.create.topics.enable" = "false"
   "default.replication.factor" = 3

@@ -2,6 +2,9 @@ variable "cluster_name" {
   description = "Name of the MSK cluster."
   type        = string
 }
+variable "cluster_vertical" {
+  default = ""
+}
 
 variable "kafka_version" {
   description = "Specify the desired Kafka software version."
