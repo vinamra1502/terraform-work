@@ -6,7 +6,9 @@ resource "aws_codeartifact_domain" "this" {
   domain = var.domain_name
   encryption_key = aws_kms_key.this.arn
   tags = {
-      environment = var.environment
+      Environment          = var.environment
+      Created_by_terraform = true
+      Team                 = var.cluster_vertical
     }
 }
 
@@ -49,7 +51,9 @@ resource "aws_codeartifact_repository" "this" {
     external_connection_name = "public:npmjs"
   }
   tags = {
-      environment = var.environment
+      Environment          = var.environment
+      Created_by_terraform = true
+      Team                 = var.cluster_vertical
     }
 }
 

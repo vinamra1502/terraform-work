@@ -7,3 +7,6 @@ variable "environment" {
 variable "repo_name" {
   default = ""
 }
+variable "cluster_vertical" {
+  default = ""
+}
