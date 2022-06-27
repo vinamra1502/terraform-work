@@ -10,3 +10,4 @@ variable "allowed_headers" {}
 variable "allowed_methods" {}
 variable "enable_lifecycle" {}
 variable "lifecycle_expiration_days" {}
+variable "cluster_vertical" {}

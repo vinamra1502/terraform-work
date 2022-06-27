@@ -1,6 +1,7 @@
 s3_bucket_name =  ["lessen-photo-bucket", "netsuite-backup-bucket"]
 # s3_bucket_name_netsuite = "netsuite-backup-bucket"
 environment    = "dev"
+cluster_vertical  = "platform"
 acl_type       = "private"
 enable_versioning  = "true"
 enable_encryption = "true"
