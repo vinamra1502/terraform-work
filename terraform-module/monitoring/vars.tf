@@ -2,13 +2,10 @@
 variable "environment" {
   default = "dev"
 }
-# variable "vpc_id" {
-#   default = ""
-# }
-# variable "subnet_ids" {
-#   type    = list(string)
-#   default = []
-# }
+variable "cluster_vertical" {
+  default = ""
+}
+
 variable "vpc_cidr" {
   description = "CIDR block of the vpc"
   default     = "172.20.0.0/16"
