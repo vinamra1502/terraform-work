@@ -7,6 +7,8 @@ resource "aws_subnet" "private_subnet_monitoring" {
   tags = {
    Name = "monitoring-subnet-${count.index}"
    Environment = var.environment
+   Created_by_terraform = true
+   Team                 = var.cluster_vertical
 
  }
 
@@ -20,6 +22,8 @@ resource "aws_vpc" "monitoring" {                # Creating VPC here
    tags = {
     Name = "monitoring-vpc"
     Environment = var.environment
+    Created_by_terraform = true
+    Team                 = var.cluster_vertical
 
   }
  }
@@ -35,6 +39,8 @@ resource "aws_sns_topic" "this" {
 
   tags = {
       Environment = var.environment
+      Created_by_terraform = true
+      Team                 = var.cluster_vertical
     }
 }
 
@@ -183,6 +189,13 @@ resource "aws_lambda_function" "lambda" {
   memory_size      = 512
   timeout          = 60
 
+  tags = {
+   Environment = var.environment
+   Created_by_terraform = true
+   Team                 = var.cluster_vertical
+
+ }
+
   environment {
     variables = {
       ENV = "dev"
@@ -317,6 +330,13 @@ resource "aws_lambda_function" "missingauditlambda" {
   runtime          = "nodejs12.x"
   memory_size      = 512
   timeout          = 60
+
+  tags = {
+   Environment = var.environment
+   Created_by_terraform = true
+   Team                 = var.cluster_vertical
+
+ }
 
   vpc_config {
     subnet_ids         = aws_subnet.private_subnet_monitoring.*.id
@@ -510,6 +530,12 @@ resource "aws_cloudtrail" "alerts" {
   s3_bucket_name  = "aws_s3_bucket.alert.id"
   cloud_watch_logs_role_arn     = aws_iam_role.cloudtrail_role.arn
   cloud_watch_logs_group_arn   = aws_cloudwatch_log_group.alert.arn
+  tags = {
+   Environment = var.environment
+   Created_by_terraform = true
+   Team                 = var.cluster_vertical
+
+ }
 }
 resource "aws_guardduty_detector" "alert" {
   enable = true
